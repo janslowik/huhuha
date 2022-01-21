@@ -19,7 +19,7 @@ os.makedirs(tiles_datadir, exist_ok=True)
 
 
 def get_otm_tile(lat: float, lon: float, zoom: int = 16, rm_png_file: bool = False,
-                 force_download: bool = False) -> np.ndarray:
+                 force_download: bool = False) -> Tuple[np.ndarray, str]:
     """
     Get tile of OpenTopoMap based on geographical coordinates
 
@@ -35,7 +35,9 @@ def get_otm_tile(lat: float, lon: float, zoom: int = 16, rm_png_file: bool = Fal
     """
     url = get_otm_tile_url(lat, lon, zoom)
     url_split = url.split('/')
-    filepath = tiles_datadir / f'openstreat_map_z_{url_split[3]}_x_{url_split[4]}_y_{url_split[5]}'
+
+    file_name = f'openstreat_map_z_{url_split[3]}_x_{url_split[4]}_y_{url_split[5]}'
+    filepath = tiles_datadir / f'zoom_{zoom}' / file_name
     if not filepath.is_file() or force_download:
         download_and_save_image(url, filepath)
 
@@ -44,7 +46,7 @@ def get_otm_tile(lat: float, lon: float, zoom: int = 16, rm_png_file: bool = Fal
     if rm_png_file:
         os.remove(filepath)
 
-    return np.asarray(image)
+    return np.asarray(image), file_name
 
 
 def get_otm_tile_url(lat: float, lon: float, zoom: int = 16) -> str:

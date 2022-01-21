@@ -17,6 +17,9 @@ Pillow = "^9.0.0"
 Fiona = "^1.8.20"
 geopandas = "^0.10.2"
 contextily = "^1.2.0"
+tqdm = "^4.62.3"
+ipywidgets = "^7.6.5"
+haversine = "^2.5.1"
 
 
 [tool.poetry.dev-dependencies]
