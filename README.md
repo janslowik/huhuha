@@ -1,7 +1,7 @@
 # huhuha
 nasza zima zła by JS&WK
 
-# Instalacja
+## Instalacja
 ```
 poetry install
 ```
@@ -22,3 +22,8 @@ pip install rasterio-1.2.10-cp38-cp38-win_amd64.whl
 Dokładna instrukcja: https://iotespresso.com/installing-rasterio-in-windows/
 
 ---
+## Pobranie danych
+```
+dvc pull
+```
+Pobrane dane z _tile_'ami OpenTopoMap należy wypakowąć przy pomocy skryptu `scripts\unzip_tiles_data.py`
