@@ -1,2 +1,24 @@
 # huhuha
-nasza zima zła
+nasza zima zła by JS&WK
+
+# Instalacja
+```
+poetry install
+```
+
+__UWAGA__ Na Windowsie odpowiednią wersję biblioteki `fiona` należy doinstalować ręcznie przed komendą `poetry install` zgodnie z instrukcją:
+https://vincent.doba.fr/posts/20210407_install-fiona-on-windows/
+
+Należy ściągnąć odpowiednie wersję biblioteki GDAL i Fiona, zwracając uwagę na ściągnięcie plików `.whl` odpowiednich dla architektury systemy oraz wersji pythona. Możliwe, ze będzie trzeba dodać zmienną środwiskową `GDAL_DATA` wskazującą na 
+```
+<adres środowiska python (venva)>\Lib\site-packages\osgeo\data\gdal
+```
+
+Należy również ręcznie pobrać odpowiedni wheel dla `rasterio` ze strony https://www.lfd.uci.edu/~gohlke/pythonlibs/#rasterio oraz zainstalować w swoim środowisku pythonwym, np.
+```
+pip install rasterio-1.2.10-cp38-cp38-win_amd64.whl
+```
+
+Dokładna instrukcja: https://iotespresso.com/installing-rasterio-in-windows/
+
+---
