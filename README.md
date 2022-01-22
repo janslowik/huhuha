@@ -4,6 +4,7 @@ nasza zima zła by JS&WK
 ## Instalacja
 ```
 poetry install
+poe install-torch
 ```
 
 __UWAGA__ Na Windowsie odpowiednią wersję biblioteki `fiona` należy doinstalować ręcznie przed komendą `poetry install` zgodnie z instrukcją:
