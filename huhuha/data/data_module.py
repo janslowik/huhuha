@@ -37,6 +37,10 @@ class AvalancheDataModule(pl.LightningDataModule):
             "test": AvalancheDataset(test_df)
         }
 
+    @property
+    def num_classes(self) -> int:
+        return 2
+
     def train_dataloader(self) -> DataLoader:
         return self._dataloader("train")
 
