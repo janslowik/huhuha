@@ -1,7 +1,13 @@
+import json
 import random
 from typing import List, Tuple
 
 import requests
+
+
+def dictionary_to_json(dictionary: dict, file_name: str):
+    with open(file_name, "w") as f:
+        json.dump(dictionary, f, indent=2)
 
 
 def random_float(low, high):

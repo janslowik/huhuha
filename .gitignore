@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 raw_data/**/*.png
+
+storage/checkpoints
+storage/logs

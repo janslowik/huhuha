@@ -4,6 +4,7 @@ nasza zima zła by JS&WK
 ## Instalacja
 ```
 poetry install
+poe install-torch
 ```
 
 __UWAGA__ Na Windowsie odpowiednią wersję biblioteki `fiona` należy doinstalować ręcznie przed komendą `poetry install` zgodnie z instrukcją:
@@ -27,3 +28,13 @@ Dokładna instrukcja: https://iotespresso.com/installing-rasterio-in-windows/
 dvc pull
 ```
 Pobrane dane z _tile_'ami OpenTopoMap należy wypakowąć przy pomocy skryptu `scripts\unzip_tiles_data.py`
+
+---
+## Trenowanie
+
+Podział projektu:
+ - `huhuha/data` -- tutaj znajdują się klasy `DataModule` oraz `Dataset` dla danych.
+ - `huhuha/learning` -- tutaj znajduje się klasa modelu klasyfikującego będąca modułem PyTorch Ligthning oraz
+   funkcja przeprowadzająca trenowanie i testowanie
+ - `huhuha/learning` -- tutaj dodajemy modele własne modele rozszerzające `torch.nn.Module`
+ - `huhuha/experiments` -- skrypty wykonujące ekseprymenty
