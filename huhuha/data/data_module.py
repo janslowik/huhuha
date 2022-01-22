@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import pandas as pd
 import pytorch_lightning as pl
@@ -14,6 +15,8 @@ class AvalancheDataModule(pl.LightningDataModule):
             self,
             batch_size: int = 64,
             seed: int = 42,
+            resize_size: Optional[int] = 224,
+            normalize: bool = True
     ):
         super().__init__()
         self.batch_size = batch_size
@@ -32,9 +35,9 @@ class AvalancheDataModule(pl.LightningDataModule):
             stratify=test_df['Avalanche']
         )
         self.datasets = {
-            "train": AvalancheDataset(train_df),
-            "val": AvalancheDataset(val_df),
-            "test": AvalancheDataset(test_df)
+            "train": AvalancheDataset(train_df, resize_size=resize_size, normalize=normalize),
+            "val": AvalancheDataset(val_df, resize_size=resize_size, normalize=normalize),
+            "test": AvalancheDataset(test_df, resize_size=resize_size, normalize=normalize)
         }
 
     @property

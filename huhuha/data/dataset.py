@@ -1,5 +1,7 @@
 import os
+from typing import Optional
 
+import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from torchvision import transforms as T
@@ -10,25 +12,27 @@ from huhuha.settings import RAW_DATA_DIR
 
 
 class AvalancheDataset(Dataset):
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, resize_size: Optional[int] = 224, normalize: bool = True):
         super().__init__()
 
-        resize = T.Resize((224, 224))
-        normalize = T.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225],
-        )
-
-        topomap_original_images = [read_image(
+        topomap_images = [read_image(
             path=os.path.join(RAW_DATA_DIR / 'opentopomap_tiles' / 'zoom_16' / tile_name),
             mode=ImageReadMode.RGB,
         ).float() for tile_name in tqdm(df["tile_filename_zoom_16"], desc='Loading TopoMap tiles')]
 
-        topomap_original_images = [normalize(resize(img)) for img
-                                   in tqdm(topomap_original_images, desc='Transforming TopoMap tiles')]
+        if resize_size is not None:
+            resize = T.Resize((resize_size, resize_size))
+            topomap_images = [resize(img) for img in tqdm(topomap_images, desc='Resizing TopoMap tiles')]
 
-        self.topo_images = topomap_original_images
-        self.elevations = df['elevations'].values
+        if normalize is not None:
+            normalize_func = T.Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+            )
+            topomap_images = [normalize_func(img) for img in tqdm(topomap_images, desc='Normalizing TopoMap tiles')]
+
+        self.topo_images = topomap_images
+        self.elevations = df['elevations'].values.astype(np.float32)
         self.labels = df['Avalanche'].values
 
     def __len__(self):
@@ -36,8 +40,8 @@ class AvalancheDataset(Dataset):
 
     def __getitem__(self, index):
         batch_data = {
-            'topo_tile': self.topo_images[index],
-            'elevations': self.elevations[index]
+            'topo_tile_img': self.topo_images[index],
+            'numeric_features': self.elevations[index]
         }
         batch_y = self.labels[index]
         return batch_data, batch_y

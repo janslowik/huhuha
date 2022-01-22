@@ -1,22 +1,34 @@
 import os
-from typing import Optional, List
+from typing import Optional, List, Dict, Tuple
 
 import pytorch_lightning as pl
 import torch
+from torch.utils.data import DataLoader
 from pytorch_lightning.callbacks.base import Callback
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
+from sklearn.metrics import classification_report
 
 from huhuha.data.data_module import AvalancheDataModule
 from huhuha.learning.classifier import Classifier
 from huhuha.settings import LOGS_DIR, CHECKPOINTS_DIR
+from huhuha.utils import dictionary_to_json
 
 
-def train_test(datamodule: AvalancheDataModule, model: torch.nn.Module,
-               epochs: int = 6, lr: float = 1e-2, weight_decay: float = 0.0,
-               name: Optional[str] = None, use_cuda: bool = False, early_stopping_patience: Optional[int] = None,
-               custom_callbacks: Optional[List[Callback]] = None, trainer_kwargs=None, **kwargs):
-    """ Train model and return predictions for test dataset"""
+def train_test(
+        datamodule: AvalancheDataModule,
+        model: torch.nn.Module,
+        epochs: int = 6,
+        lr: float = 1e-2,
+        weight_decay: float = 0.0,
+        name: Optional[str] = None,
+        hparams: Optional[Dict] = None,
+        use_cuda: bool = False,
+        early_stopping_patience: Optional[int] = None,
+        custom_callbacks: Optional[List[Callback]] = None,
+        trainer_kwargs=None,
+        **kwargs
+):
     train_loader = datamodule.train_dataloader()
     val_loader = datamodule.val_dataloader()
     test_loader = datamodule.test_dataloader()
@@ -27,6 +39,9 @@ def train_test(datamodule: AvalancheDataModule, model: torch.nn.Module,
     logger = TensorBoardLogger(
         name=name, save_dir=LOGS_DIR, default_hp_metric=False
     )
+    if hparams is not None:
+        logger.log_hyperparams(params=hparams)
+
     model = Classifier(model=model, num_classes=datamodule.num_classes,
                        learning_rate=lr, weight_decay=weight_decay)
 
@@ -61,8 +76,10 @@ def train_test(datamodule: AvalancheDataModule, model: torch.nn.Module,
         gpus=1 if _use_cuda else 0,
         max_epochs=epochs,
         logger=logger,
+        num_sanity_val_steps=0,
         callbacks=callbacks,
         **trainer_kwargs,
     )
     trainer.fit(model, train_loader, val_loader)
-    trainer.test(test_dataloaders=test_loader)
+    results = trainer.test(dataloaders=test_loader)
+    dictionary_to_json(results[0], LOGS_DIR / logger.name / f"version_{logger.version}" / "test_results.json")

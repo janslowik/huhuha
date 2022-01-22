@@ -12,19 +12,19 @@ from torchmetrics import (
 
 
 class Classifier(LightningModule):
-    def __init__(
-            self, model: torch.nn.Module, num_classes: int,
-            learning_rate: float, weight_decay: float = 0.0
-    ):
-        super(LightningModule, self).__init__()
+    def __init__(self, model: torch.nn.Module, num_classes: int, learning_rate: float, weight_decay: float = 0.0,
+                 *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.model = model
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
 
+        self.metric_types = ('accuracy', 'precision',
+                             'recall', 'f1', 'macro_f1')
         metrics = {}
         for split in ["train", "val", "test"]:
-            self.metrics[f"{split}_accuracy"] = Accuracy()
+            metrics[f"{split}_accuracy"] = Accuracy()
             if num_classes:
                 metrics[f"{split}_macro_f1"] = F1(
                     average="macro", num_classes=num_classes
@@ -60,7 +60,7 @@ class Classifier(LightningModule):
         return {"val_loss": loss}
 
     def validation_epoch_end(self, outputs):
-        self.log_class_metrics_at_epoch_end('valid')
+        self.log_class_metrics_at_epoch_end('val')
 
     def test_step(
             self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
@@ -93,9 +93,9 @@ class Classifier(LightningModule):
 
     def configure_optimizers(self):
         if self.weight_decay > 0:
-            optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+            optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         else:
-            optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
     def log_all_metrics(self, output, y, split, on_step=None, on_epoch=None):
