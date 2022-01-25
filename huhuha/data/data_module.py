@@ -21,7 +21,7 @@ class AvalancheDataModule(pl.LightningDataModule):
         super().__init__()
         self.batch_size = batch_size
 
-        df = pd.read_csv(DATA_DIR / 'avalanches-dataset.csv')
+        df = pd.read_csv(DATA_DIR / 'avalanches-dataset-15.csv')
         train_df, test_df = train_test_split(
             df,
             train_size=0.7,
