@@ -12,32 +12,32 @@ from huhuha.settings import DATA_DIR
 
 class AvalancheDataModule(pl.LightningDataModule):
     def __init__(
-            self,
-            batch_size: int = 64,
-            seed: int = 42,
-            resize_size: Optional[int] = 224,
-            normalize: bool = True
+        self,
+        batch_size: int = 64,
+        seed: int = 42,
+        resize_size: Optional[int] = 224,
+        normalize: bool = True,
     ):
         super().__init__()
         self.batch_size = batch_size
 
-        df = pd.read_csv(DATA_DIR / 'avalanches-dataset-15.csv')
+        df = pd.read_csv(DATA_DIR / "avalanches-dataset-15.csv")
         train_df, test_df = train_test_split(
-            df,
-            train_size=0.7,
-            random_state=seed,
-            stratify=df['Avalanche']
+            df, train_size=0.7, random_state=seed, stratify=df["Avalanche"]
         )
         val_df, test_df = train_test_split(
-            test_df,
-            train_size=0.5,
-            random_state=seed,
-            stratify=test_df['Avalanche']
+            test_df, train_size=0.5, random_state=seed, stratify=test_df["Avalanche"]
         )
         self.datasets = {
-            "train": AvalancheDataset(train_df, resize_size=resize_size, normalize=normalize),
-            "val": AvalancheDataset(val_df, resize_size=resize_size, normalize=normalize),
-            "test": AvalancheDataset(test_df, resize_size=resize_size, normalize=normalize)
+            "train": AvalancheDataset(
+                train_df, resize_size=resize_size, normalize=normalize
+            ),
+            "val": AvalancheDataset(
+                val_df, resize_size=resize_size, normalize=normalize
+            ),
+            "test": AvalancheDataset(
+                test_df, resize_size=resize_size, normalize=normalize
+            ),
         }
 
     @property
