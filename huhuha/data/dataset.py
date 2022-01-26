@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 import numpy as np
 import pandas as pd
@@ -15,68 +15,71 @@ class AvalancheDataset(Dataset):
     def __init__(
         self,
         df: pd.DataFrame,
-        zoom: int = 15,
+        zoom: List[int] = [15],
+        image_source: List[str] = ["opentopomap"],
         resize_size: Optional[int] = 224,
         normalize: bool = True,
+        label: str = "TRAIN"
     ):
         super().__init__()
 
-        topomap_images = [
-            read_image(
-                path=os.path.join(
-                    DATA_DIR
-                    / "center_tiles"
-                    / "avalanches"
-                    / "opentopomap"
-                    / str(zoom)
-                    / f"{_id}.png"
-                ),
-                mode=ImageReadMode.RGB,
-            ).float()
-            for _id in tqdm(df["id"], desc="Loading TopoMap tiles")
-        ]
+        images = {}
 
-        arcgis_images = [
-            read_image(
-                path=os.path.join(
-                    DATA_DIR
-                    / "center_tiles"
-                    / "avalanches"
-                    / "arcgis"
-                    / str(zoom)
-                    / f"{_id}.png"
-                ),
-                mode=ImageReadMode.RGB,
-            ).float()
-            for _id in tqdm(df["id"], desc="Loading TopoMap tiles")
-        ]
+        for src in image_source:
+            images[src] = {}
+
+            for z in zoom:
+                images[src][z] = [
+                    read_image(
+                        path=os.path.join(
+                            DATA_DIR
+                            / "center_tiles"
+                            / "avalanches"
+                            / src
+                            / str(z)
+                            / f"{_id}.png"
+                        ),
+                        mode=ImageReadMode.RGB,
+                    ).float()
+                    for _id in tqdm(
+                        df["id"],
+                        desc=f"[{label.ljust(5, ' ')}][Loading    ] [tiles from {src}] [zoom level {z}]",
+                    )
+                ]
 
         if resize_size is not None:
             resize = T.Resize((resize_size, resize_size))
-            topomap_images = [
-                resize(img)
-                for img in tqdm(topomap_images, desc="Resizing TopoMap tiles")
-            ]
-            arcgis_images = [
-                resize(img) for img in tqdm(arcgis_images, desc="Resizing ArcGIS tiles")
-            ]
+
+            for src in image_source:
+                for z in zoom:
+                    images[src][z] = [
+                        resize(img)
+                        for img in tqdm(
+                            images[src][z],
+                            desc=f"[{label.ljust(5, ' ')}][Resizing   ] [tiles from {src}] [zoom level {z}]",
+                        )
+                    ]
 
         if normalize is not None:
             normalize_func = T.Normalize(
                 mean=[0.485, 0.456, 0.406],
                 std=[0.229, 0.224, 0.225],
             )
-            topomap_images = [
-                normalize_func(img)
-                for img in tqdm(topomap_images, desc="Normalizing TopoMap tiles")
-            ]
-            arcgis_images = [
-                normalize_func(img)
-                for img in tqdm(arcgis_images, desc="Normalizing ArcGIS tiles")
-            ]
 
-        self.topo_images = topomap_images
-        self.arcgis_images = arcgis_images
+            for src in image_source:
+                for z in zoom:
+                    images[src][z] = [
+                        normalize_func(img)
+                        for img in tqdm(
+                            images[src][z],
+                            desc=f"[{label.ljust(5, ' ')}][Normalizing] [tiles from {src}] [zoom level {z}]",
+                        )
+                    ]
+
+        for src in image_source:
+            for z in zoom:
+                setattr(self, f"images_src_{src}_z_{z}", images[src][z])
+
         self.elevations = df["elevations"].values.astype(np.float32)
         self.labels = df["Avalanche"].values
 
@@ -84,10 +87,12 @@ class AvalancheDataset(Dataset):
         return len(self.labels)
 
     def __getitem__(self, index):
+        images_attrs = [p for p in dir(self) if p.startswith("images_src_")]
+
+        images_dict = {attr: getattr(self, attr)[index] for attr in images_attrs}
+
         batch_data = {
-            # 'topo_tile_img': self.arcgis_images[index],
-            "arcgis_tile_img": self.arcgis_images[index],
-            "topo_tile_img": self.topo_images[index],
+            **images_dict,
             "numeric_features": self.elevations[index],
         }
         batch_y = self.labels[index]

@@ -25,6 +25,7 @@ dvc = "^2.9.3"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 poethepoet = "^0.12.2"
+black = "^21.12b0"
 
 [tool.poe.tasks]
 install-torch = """

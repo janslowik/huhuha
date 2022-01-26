@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 import pandas as pd
 import pytorch_lightning as pl
@@ -17,11 +17,15 @@ class AvalancheDataModule(pl.LightningDataModule):
         seed: int = 42,
         resize_size: Optional[int] = 224,
         normalize: bool = True,
+        dataset_csv_name: str = "avalanches-dataset-common.csv",
+        zoom: List[int] = [15],
+        image_source: List[str] = ["opentopomap"],
     ):
         super().__init__()
         self.batch_size = batch_size
 
-        df = pd.read_csv(DATA_DIR / "avalanches-dataset-15.csv")
+        df = pd.read_csv(DATA_DIR / dataset_csv_name)
+
         train_df, test_df = train_test_split(
             df, train_size=0.7, random_state=seed, stratify=df["Avalanche"]
         )
@@ -30,13 +34,28 @@ class AvalancheDataModule(pl.LightningDataModule):
         )
         self.datasets = {
             "train": AvalancheDataset(
-                train_df, resize_size=resize_size, normalize=normalize
+                train_df,
+                resize_size=resize_size,
+                normalize=normalize,
+                image_source=image_source,
+                zoom=zoom,
+                label='train',
             ),
             "val": AvalancheDataset(
-                val_df, resize_size=resize_size, normalize=normalize
+                val_df,
+                resize_size=resize_size,
+                normalize=normalize,
+                image_source=image_source,
+                zoom=zoom,
+                label='val'
             ),
             "test": AvalancheDataset(
-                test_df, resize_size=resize_size, normalize=normalize
+                test_df,
+                resize_size=resize_size,
+                normalize=normalize,
+                image_source=image_source,
+                zoom=zoom,
+                label='test'
             ),
         }
 

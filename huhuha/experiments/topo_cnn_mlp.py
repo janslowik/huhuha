@@ -3,15 +3,18 @@ from itertools import product
 
 from huhuha.data.data_module import AvalancheDataModule
 from huhuha.learning.train_test import train_test
-from huhuha.models.CNN_MLP import CNN_MLP
+from huhuha.models.CNN_MLP import CNN_MLP_SEP
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 if __name__ == "__main__":
     rep_num = 1
 
-    name = "CNN_MLP_TopoMap"
-    model_cls = CNN_MLP
+    name = "CNN_MLP_SEP_TopoMap"
+    model_cls = CNN_MLP_SEP
+    # TODO: pass this params with click cli
+    zoom = [15]
+    image_src = ["opentopomap"]
     resize_size = 32
 
     batch_sizes = [32]
@@ -24,7 +27,10 @@ if __name__ == "__main__":
 
     for batch_size in batch_sizes:
         data_module = AvalancheDataModule(
-            batch_size=batch_size, resize_size=resize_size
+            batch_size=batch_size,
+            resize_size=resize_size,
+            image_source=image_src,
+            zoom=zoom,
         )
         output_dim = data_module.num_classes
 
@@ -40,7 +46,11 @@ if __name__ == "__main__":
             }
             for _ in range(rep_num):
                 model = model_cls(
-                    output_dim=output_dim, pretrained=pretrained, additional_features=1
+                    output_dim=output_dim,
+                    pretrained=pretrained,
+                    additional_features=1,
+                    zoom=zoom,
+                    image_source=image_src,
                 )
                 train_test(
                     data_module,
