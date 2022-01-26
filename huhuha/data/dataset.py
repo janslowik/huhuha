@@ -19,7 +19,7 @@ class AvalancheDataset(Dataset):
         image_source: List[str] = ["opentopomap"],
         resize_size: Optional[int] = 224,
         normalize: bool = True,
-        label: str = "TRAIN"
+        label: str = "TRAIN",
     ):
         super().__init__()
 
@@ -43,7 +43,7 @@ class AvalancheDataset(Dataset):
                     ).float()
                     for _id in tqdm(
                         df["id"],
-                        desc=f"[{label.ljust(5, ' ')}][Loading    ] [tiles from {src}] [zoom level {z}]",
+                        desc=f"[{label.ljust(5, ' ')}][loading    ] [tiles from {src}] [zoom level {z}]",
                     )
                 ]
 
@@ -56,7 +56,7 @@ class AvalancheDataset(Dataset):
                         resize(img)
                         for img in tqdm(
                             images[src][z],
-                            desc=f"[{label.ljust(5, ' ')}][Resizing   ] [tiles from {src}] [zoom level {z}]",
+                            desc=f"[{label.ljust(5, ' ')}][resizing   ] [tiles from {src}] [zoom level {z}]",
                         )
                     ]
 
@@ -72,7 +72,7 @@ class AvalancheDataset(Dataset):
                         normalize_func(img)
                         for img in tqdm(
                             images[src][z],
-                            desc=f"[{label.ljust(5, ' ')}][Normalizing] [tiles from {src}] [zoom level {z}]",
+                            desc=f"[{label.ljust(5, ' ')}][normalizing] [tiles from {src}] [zoom level {z}]",
                         )
                     ]
 

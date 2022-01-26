@@ -19,19 +19,22 @@ class CNN_MLP_SEP(nn.Module):
         self.zoom = zoom
         self.image_source = image_source
 
-        print('zoom', len(self.zoom))
-        print('image_source', len(self.image_source))
+        print("zoom", len(self.zoom))
+        print("image_source", len(self.image_source))
 
         # TODO: check two approaches -> separate resnet for each zoom level or treat zoom level as augmentation
 
         for src in image_source:
             for z in zoom:
-                setattr(self, f"resnet_{src}_{z}", M.resnet18(pretrained=pretrained))
-                setattr(self, f"resnet_{src}_{z}.fc", nn.Identity())
+                layer_name = f"resnet_{src}_{z}"
+
+                _resnet_layer = M.resnet18(pretrained=pretrained)
+                _resnet_layer.fc = nn.Identity()
+
+                setattr(self, layer_name, _resnet_layer)
 
         self.fc = nn.Linear(
-            512 * len(zoom) * len(image_source) + additional_features, 
-            output_dim
+            512 * len(zoom) * len(image_source) + additional_features, output_dim
         )
 
     def forward(self, batch_data):
@@ -45,16 +48,12 @@ class CNN_MLP_SEP(nn.Module):
                 data_for_src_z = batch_data[f"images_src_{src}_z_{z}"]
                 out_for_src_z = resnet_for_src_z(data_for_src_z)
 
-                print(f'data_for_src_z.shape', data_for_src_z.shape)
-                print(f'out_for_{src}_{z}.shape: {out_for_src_z.shape}')
-
                 image_outputs.append(out_for_src_z)
 
         x_numeric = batch_data["numeric_features"]
         x_numeric = x_numeric.view(-1, self.additional_features)
 
-        print(f'x_numeric.shape: {x_numeric.shape}')
-
         out = torch.cat([*image_outputs, x_numeric], dim=1)
         out = self.fc(out)
+
         return out

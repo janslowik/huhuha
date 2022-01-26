@@ -39,7 +39,7 @@ class AvalancheDataModule(pl.LightningDataModule):
                 normalize=normalize,
                 image_source=image_source,
                 zoom=zoom,
-                label='train',
+                label="train",
             ),
             "val": AvalancheDataset(
                 val_df,
@@ -47,7 +47,7 @@ class AvalancheDataModule(pl.LightningDataModule):
                 normalize=normalize,
                 image_source=image_source,
                 zoom=zoom,
-                label='val'
+                label="val",
             ),
             "test": AvalancheDataset(
                 test_df,
@@ -55,7 +55,7 @@ class AvalancheDataModule(pl.LightningDataModule):
                 normalize=normalize,
                 image_source=image_source,
                 zoom=zoom,
-                label='test'
+                label="test",
             ),
         }
 
