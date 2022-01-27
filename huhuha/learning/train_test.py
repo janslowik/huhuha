@@ -16,18 +16,18 @@ from huhuha.utils import dictionary_to_json
 
 
 def train_test(
-        datamodule: AvalancheDataModule,
-        model: torch.nn.Module,
-        epochs: int = 6,
-        lr: float = 1e-2,
-        weight_decay: float = 0.0,
-        name: Optional[str] = None,
-        hparams: Optional[Dict] = None,
-        use_cuda: bool = False,
-        early_stopping_patience: Optional[int] = None,
-        custom_callbacks: Optional[List[Callback]] = None,
-        trainer_kwargs=None,
-        **kwargs
+    datamodule: AvalancheDataModule,
+    model: torch.nn.Module,
+    epochs: int = 6,
+    lr: float = 1e-2,
+    weight_decay: float = 0.0,
+    name: Optional[str] = None,
+    hparams: Optional[Dict] = None,
+    use_cuda: bool = False,
+    early_stopping_patience: Optional[int] = None,
+    custom_callbacks: Optional[List[Callback]] = None,
+    trainer_kwargs=None,
+    **kwargs,
 ):
     train_loader = datamodule.train_dataloader()
     val_loader = datamodule.val_dataloader()
@@ -36,18 +36,18 @@ def train_test(
     if name is None:
         name = model.__class__.__name__
 
-    logger = TensorBoardLogger(
-        name=name, save_dir=LOGS_DIR, default_hp_metric=False
-    )
+    logger = TensorBoardLogger(name=name, save_dir=LOGS_DIR, default_hp_metric=False)
     if hparams is not None:
         logger.log_hyperparams(params=hparams)
 
-    model = Classifier(model=model, num_classes=datamodule.num_classes,
-                       learning_rate=lr, weight_decay=weight_decay)
-
-    checkpoint_dir = (
-            CHECKPOINTS_DIR / logger.name / f"version_{logger.version}"
+    model = Classifier(
+        model=model,
+        num_classes=datamodule.num_classes,
+        learning_rate=lr,
+        weight_decay=weight_decay,
     )
+
+    checkpoint_dir = CHECKPOINTS_DIR / logger.name / f"version_{logger.version}"
     os.makedirs(checkpoint_dir, exist_ok=True)
     checkpoint_callback = ModelCheckpoint(
         dirpath=checkpoint_dir,
@@ -82,4 +82,9 @@ def train_test(
     )
     trainer.fit(model, train_loader, val_loader)
     results = trainer.test(dataloaders=test_loader)
-    dictionary_to_json(results[0], LOGS_DIR / logger.name / f"version_{logger.version}" / "test_results.json")
+    dictionary_to_json(
+        results[0],
+        LOGS_DIR / logger.name / f"version_{logger.version}" / "test_results.json",
+    )
+
+    return results[0]

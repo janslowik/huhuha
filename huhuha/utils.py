@@ -26,10 +26,14 @@ def get_elevation(points: List[Tuple[float, float]]) -> List[float]:
     """
 
     if len(points) > 100:
-        print('Too many locations, max number of location per request is 100. Empty list returned.')
+        print(
+            "Too many locations, max number of location per request is 100. Empty list returned."
+        )
         return []
     else:
-        locations = '|'.join([f'{lat},{long}' for lat, long in points])
-        query = f'https://api.opentopodata.org/v1/srtm30m?locations=' + locations
+        locations = "|".join([f"{lat},{long}" for lat, long in points])
+        query = f"https://api.opentopodata.org/v1/srtm30m?locations=" + locations
         result = requests.get(query)  # json object, various ways you can extract value
-        return [single_result['elevation'] for single_result in result.json()['results']]
+        return [
+            single_result["elevation"] for single_result in result.json()["results"]
+        ]

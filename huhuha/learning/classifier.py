@@ -12,16 +12,22 @@ from torchmetrics import (
 
 
 class Classifier(LightningModule):
-    def __init__(self, model: torch.nn.Module, num_classes: int, learning_rate: float, weight_decay: float = 0.0,
-                 *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        model: torch.nn.Module,
+        num_classes: int,
+        learning_rate: float,
+        weight_decay: float = 0.0,
+        *args: Any,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
         self.model = model
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
 
-        self.metric_types = ('accuracy', 'precision',
-                             'recall', 'f1', 'macro_f1')
+        self.metric_types = ("accuracy", "precision", "recall", "f1", "macro_f1")
         metrics = {}
         for split in ["train", "val", "test"]:
             metrics[f"{split}_accuracy"] = Accuracy()
@@ -29,9 +35,7 @@ class Classifier(LightningModule):
                 metrics[f"{split}_macro_f1"] = F1(
                     average="macro", num_classes=num_classes
                 )
-                metrics[f"{split}_f1"] = F1(
-                    average="none", num_classes=num_classes
-                )
+                metrics[f"{split}_f1"] = F1(average="none", num_classes=num_classes)
                 metrics[f"{split}_precision"] = Precision(
                     average="none", num_classes=num_classes
                 )
@@ -45,14 +49,14 @@ class Classifier(LightningModule):
         return x
 
     def training_step(
-            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> Dict[str, Any]:
         output, y_true, loss = self._shared_step(batch)
         self.log("train_loss", loss.item(), on_step=True, on_epoch=True, prog_bar=True)
         return {"loss": loss}
 
     def validation_step(
-            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> Dict[str, Any]:
         output, y_true, loss = self._shared_step(batch)
         self.log("val_loss", loss.item(), on_epoch=True, prog_bar=True)
@@ -60,10 +64,10 @@ class Classifier(LightningModule):
         return {"val_loss": loss}
 
     def validation_epoch_end(self, outputs):
-        self.log_class_metrics_at_epoch_end('val')
+        self.log_class_metrics_at_epoch_end("val")
 
     def test_step(
-            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> Dict[str, Any]:
         output, y_true, loss = self._shared_step(batch)
         self.log("test_loss", loss.item(), on_epoch=True, prog_bar=True)
@@ -71,19 +75,19 @@ class Classifier(LightningModule):
         return {"test_loss": loss}
 
     def test_epoch_end(self, outputs) -> None:
-        self.log_class_metrics_at_epoch_end('test')
+        self.log_class_metrics_at_epoch_end("test")
 
     def predict_step(
-            self,
-            batch: Tuple[torch.Tensor, torch.Tensor],
-            batch_idx: int,
-            dataloader_idx: Optional[int] = None,
+        self,
+        batch: Tuple[torch.Tensor, torch.Tensor],
+        batch_idx: int,
+        dataloader_idx: Optional[int] = None,
     ) -> torch.Tensor:
         output, y_true, loss = self._shared_step(batch)
         return output
 
     def _shared_step(
-            self, batch: Tuple[torch.Tensor, torch.Tensor]
+        self, batch: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x, y_true = batch
         y_true = y_true.long()
@@ -93,7 +97,9 @@ class Classifier(LightningModule):
 
     def configure_optimizers(self):
         if self.weight_decay > 0:
-            optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+            optimizer = torch.optim.AdamW(
+                self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
+            )
         else:
             optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
@@ -102,7 +108,7 @@ class Classifier(LightningModule):
         output = torch.softmax(output, dim=1)
         log_dict = {}
         for metric_type in self.metric_types:
-            metric_key = f'{split}_{metric_type}'
+            metric_key = f"{split}_{metric_type}"
             metric_value = self.metrics[metric_key](output.float(), y.int())
 
             if not metric_value.size():
@@ -114,13 +120,13 @@ class Classifier(LightningModule):
     def log_class_metrics_at_epoch_end(self, split):
         log_dict = {}
         for metric_type in self.metric_types:
-            metric_key = f'{split}_{metric_type}'
+            metric_key = f"{split}_{metric_type}"
             metric = self.metrics[metric_key]
 
-            if metric.average in [None, 'none']:
+            if metric.average in [None, "none"]:
                 metric_value = self.metrics[metric_key].compute()
                 for idx in range(metric_value.size(dim=0)):
-                    log_dict[f'{metric_key}_{idx}'] = metric_value[idx]
+                    log_dict[f"{metric_key}_{idx}"] = metric_value[idx]
 
                 self.metrics[metric_key].reset()
 
