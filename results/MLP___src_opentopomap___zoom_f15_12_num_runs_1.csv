@@ -1,0 +1,10 @@
+,mean,std
+test_loss,0.846,
+test_accuracy,0.784,
+test_macro_f1,0.783,
+test_precision_0,0.763,
+test_precision_1,0.811,
+test_recall_0,0.841,
+test_recall_1,0.724,
+test_f1_0,0.8,
+test_f1_1,0.765,
