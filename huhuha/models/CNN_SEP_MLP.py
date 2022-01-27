@@ -12,6 +12,7 @@ class CNN_SEP_MLP(nn.Module):
         additional_features: int = 1,
         zoom: List[int] = [15],
         image_source: List[str] = ["opentopomap"],
+        **_
     ):
         super().__init__()
         self.additional_features = additional_features
