@@ -77,5 +77,5 @@ class AvalancheDataModule(pl.LightningDataModule):
             self.datasets[split],
             batch_size=self.batch_size,
             shuffle=split == "train",
-            num_workers=int(os.environ.get("NUM_WORKERS", 0)),
+            num_workers=int(os.environ.get("NUM_WORKERS", 8)),
         )

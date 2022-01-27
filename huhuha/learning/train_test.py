@@ -86,3 +86,5 @@ def train_test(
         results[0],
         LOGS_DIR / logger.name / f"version_{logger.version}" / "test_results.json",
     )
+
+    return results[0]

@@ -4,7 +4,7 @@ import torchvision.models as M
 from typing import Optional, List
 
 
-class CNN_MLP_SEP(nn.Module):
+class CNN_SEP_MLP(nn.Module):
     def __init__(
         self,
         output_dim=2,
@@ -18,9 +18,6 @@ class CNN_MLP_SEP(nn.Module):
 
         self.zoom = zoom
         self.image_source = image_source
-
-        print("zoom", len(self.zoom))
-        print("image_source", len(self.image_source))
 
         # TODO: check two approaches -> separate resnet for each zoom level or treat zoom level as augmentation
 
