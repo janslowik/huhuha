@@ -28,9 +28,7 @@ class CNN_AUG_MLP(nn.Module):
 
             setattr(self, layer_name, _resnet_layer)
 
-        self.fc = nn.Linear(
-            512 * len(image_source) + additional_features, output_dim
-        )
+        self.fc = nn.Linear(512 * len(image_source) + additional_features, output_dim)
 
     def forward(self, batch_data):
 
@@ -43,7 +41,6 @@ class CNN_AUG_MLP(nn.Module):
             for z in self.zoom:
                 data_for_src_z = batch_data[f"images_src_{src}_z_{z}"]
                 partial.append(resnet_for_src(data_for_src_z))
-
 
             mean_for_src = torch.mean(torch.stack(partial), dim=0)
 

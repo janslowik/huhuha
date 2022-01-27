@@ -48,7 +48,8 @@ def cli_group():
 @click.option("--epochs-list", default=[20], multiple=True)
 @click.option("--model-names", default=["CNN_SEP_MLP"], multiple=True)
 @click.option("--resize-size", default=32)
-def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list):
+@click.option("--hidden-dim", default=512)
+def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_dim):
 
     # i left this as alist just for compatibility
     batch_sizes = [32]
@@ -92,6 +93,7 @@ def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list):
                         image_source=image_src,
                         pretrained=pretrained,
                         resize_size=resize_size,
+                        hidden_dim=hidden_dim,
                     )
                     _results = train_test(
                         data_module,
