@@ -9,6 +9,7 @@ from huhuha.data.data_module import AvalancheDataModule
 from huhuha.learning.train_test import train_test
 from huhuha.models.CNN_SEP_MLP import CNN_SEP_MLP
 from huhuha.models.CNN_AUG_MLP import CNN_AUG_MLP
+from huhuha.models.MLP import MLP
 from huhuha.settings import RESULTS_DIR
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -16,6 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 models_dict = {
     "CNN_SEP_MLP": CNN_SEP_MLP,
     "CNN_AUG_MLP": CNN_AUG_MLP,
+    "MLP": MLP,
 }
 
 
@@ -85,10 +87,11 @@ def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list):
                 for _ in range(rep_num):
                     model = model_cls(
                         output_dim=output_dim,
-                        pretrained=pretrained,
                         additional_features=1,
                         zoom=zoom,
                         image_source=image_src,
+                        pretrained=pretrained,
+                        resize_size=resize_size,
                     )
                     _results = train_test(
                         data_module,
