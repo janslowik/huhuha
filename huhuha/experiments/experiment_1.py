@@ -8,12 +8,14 @@ from importlib_metadata import re
 from huhuha.data.data_module import AvalancheDataModule
 from huhuha.learning.train_test import train_test
 from huhuha.models.CNN_SEP_MLP import CNN_SEP_MLP
+from huhuha.models.CNN_AUG_MLP import CNN_AUG_MLP
 from huhuha.settings import RESULTS_DIR
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 models_dict = {
     "CNN_SEP_MLP": CNN_SEP_MLP,
+    "CNN_AUG_MLP": CNN_AUG_MLP,
 }
 
 

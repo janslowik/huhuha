@@ -21,6 +21,7 @@ tqdm = "^4.62.3"
 ipywidgets = "^7.6.5"
 haversine = "^2.5.1"
 dvc = "^2.9.3"
+click = "^8.0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
