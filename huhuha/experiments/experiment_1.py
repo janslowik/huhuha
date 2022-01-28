@@ -109,9 +109,11 @@ def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_
 
                     results.append(_results)
 
-        df = pd.DataFrame(results).describe().loc[["mean", "std"]].round(3).transpose()
+        df = pd.DataFrame(results)
 
         df.to_csv(RESULTS_DIR / f"{name}_num_runs_{rep_num}.csv")
+
+        df = df.describe().loc[["mean", "std"]].round(3).transpose()
 
         print_results(df)
 
