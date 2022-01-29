@@ -13,13 +13,13 @@ from huhuha.settings import DATA_DIR, RAW_DATA_DIR
 
 class AvalancheDataset(Dataset):
     def __init__(
-        self,
-        df: pd.DataFrame,
-        zoom: List[int] = [15],
-        image_source: List[str] = ["opentopomap"],
-        resize_size: Optional[int] = 224,
-        normalize: bool = True,
-        label: str = "TRAIN",
+            self,
+            df: pd.DataFrame,
+            zoom: List[int] = [15],
+            image_source: List[str] = ["opentopomap"],
+            resize_size: Optional[int] = 224,
+            normalize: bool = True,
+            label: str = "TRAIN",
     ):
         super().__init__()
 
@@ -82,6 +82,9 @@ class AvalancheDataset(Dataset):
 
         self.elevations = df["elevations"].values.astype(np.float32)
         self.labels = df["Avalanche"].values
+
+        self.latitudes = df["latitude"].values
+        self.longitudes = df["longitude"].values
 
     def __len__(self):
         return len(self.labels)
