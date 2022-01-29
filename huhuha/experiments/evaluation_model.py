@@ -52,6 +52,10 @@ def run(model_checkpoint: str, image_src, zoom, resize_size, batch_size):
         datamodule=data_module,
         use_cuda=use_cuda
     )
+    test_dataset = data_module.datasets["test"]
+    true_y = test_dataset.labels
+    longitudes = test_dataset.longitudes
+    latitudes = test_dataset.latitudes
 
 
 if __name__ == "__main__":
