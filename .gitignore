@@ -1,3 +1,7 @@
+data/center_tiles.zip
+data/center_tiles/
+data/opentopomap_tiles/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

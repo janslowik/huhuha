@@ -38,3 +38,6 @@ Podział projektu:
    funkcja przeprowadzająca trenowanie i testowanie
  - `huhuha/learning` -- tutaj dodajemy modele własne modele rozszerzające `torch.nn.Module`
  - `huhuha/experiments` -- skrypty wykonujące ekseprymenty
+
+## experymenty
+
