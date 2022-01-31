@@ -11,6 +11,7 @@ from huhuha.models.CNN_SEP_MLP import CNN_SEP_MLP
 from huhuha.models.CNN_AUG_MLP import CNN_AUG_MLP
 from huhuha.models.MLP import MLP
 from huhuha.settings import RESULTS_DIR
+import json
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
@@ -50,7 +51,8 @@ def cli_group():
 @click.option("--resize-size", default=32)
 @click.option("--hidden-dim", default=512)
 @click.option("--batch-size", default=32)
-def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_dim, batch_size):
+@click.option("--pred", default=False)
+def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_dim, batch_size, pred):
 
     # i left this as alist just for compatibility
     batch_sizes = [batch_size]
@@ -66,6 +68,7 @@ def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_
         name = f"{m}___src_{'_'.join(image_src)}___zoom_f{'_'.join([str(z) for z in zoom])}"
 
         results = []
+        preds_list = []
 
         for batch_size in batch_sizes:
             data_module = AvalancheDataModule(
@@ -105,17 +108,25 @@ def run(model_names, image_src, zoom, rep_num, resize_size, epochs_list, hidden_
                         name=name,
                         hparams=hparams,
                         use_cuda=use_cuda,
+                        pred=pred,  
                     )
 
-                    results.append(_results)
+                    results.append(_results[0])
+                    preds_list.append(_results[1])
 
         df = pd.DataFrame(results)
 
         df.to_csv(RESULTS_DIR / f"{name}_num_runs_{rep_num}.csv")
 
+        if pred:
+            with open(RESULTS_DIR / f"{name}_preds.json", "w") as f:
+                json.dump(preds_list, f)
+
         df = df.describe().loc[["mean", "std"]].round(3).transpose()
 
         print_results(df)
+
+
 
 
 if __name__ == "__main__":
