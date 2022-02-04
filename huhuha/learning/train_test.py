@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Optional, List, Dict, Tuple
 
 import pytorch_lightning as pl
@@ -14,6 +15,29 @@ from huhuha.learning.classifier import Classifier
 from huhuha.settings import LOGS_DIR, CHECKPOINTS_DIR
 from huhuha.utils import dictionary_to_json
 
+def get_res(model, dataloader):
+    y_pred_all = []
+    y_true_all = []
+
+    model.eval()
+    with torch.no_grad():
+        for X_batch, y_batch in dataloader:
+
+            outputs = model(X_batch)
+            _, y_pred = torch.max(outputs.data , 1)
+            # y_pred = (y_pred > threshold).int()
+
+            y_pred_all.extend(y_pred.tolist())
+            y_true_all.extend(y_batch.tolist())
+
+    res = {
+        'y_pred': y_pred_all,
+        'y_true': y_true_all,
+        'latitudes': list(dataloader.dataset.latitudes),
+        'longitudes': list(dataloader.dataset.longitudes)
+    }
+
+    return res
 
 def train_test(
     datamodule: AvalancheDataModule,
@@ -27,6 +51,7 @@ def train_test(
     early_stopping_patience: Optional[int] = None,
     custom_callbacks: Optional[List[Callback]] = None,
     trainer_kwargs=None,
+    pred=False,
     **kwargs,
 ):
     train_loader = datamodule.train_dataloader()
@@ -87,4 +112,13 @@ def train_test(
         LOGS_DIR / logger.name / f"version_{logger.version}" / "test_results.json",
     )
 
-    return results[0]
+    preds = {}
+    if pred:
+        preds = {
+            "test": get_res(model, test_loader),
+            "val": get_res(model, val_loader),
+            "train": get_res(model, train_loader)
+        }
+
+
+    return results[0], preds
